@@ -113,7 +113,7 @@ export default function SignUpForm({ onSuccess, onCancel }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
+    <form onSubmit={handleSubmit} noValidate >
       <FormField id="fullName" label="Full name" value={form.fullName} onChange={handleChange} placeholder="e.g. Priya Sharma" error={errors.fullName} />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
