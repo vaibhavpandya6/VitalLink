@@ -670,4 +670,46 @@ const DonorRegistrationForm = ({ onBack, onSignIn }) => {
               >
                 {step}
               </div>
+              {step < 4 && (
+                <div className={`w-12 h-1 ${currentStep > step ? 'bg-red-600' : 'bg-gray-200'}`}></div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Form Steps */}
+        <div className="bg-white shadow-lg rounded-2xl p-6">
+          {renderStep()}
+          <div className="flex justify-between mt-8">
+            {currentStep > 1 && (
+              <button
+                onClick={prevStep}
+                className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Back
+              </button>
+            )}
+            {currentStep < 4 ? (
+              <button
+                onClick={nextStep}
+                className="ml-auto px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                className="ml-auto px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Submit
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DonorRegistrationForm;
               
