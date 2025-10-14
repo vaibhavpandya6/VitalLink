@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, MapPin, Bell, Shield, Users, Clock, ChevronRight, Menu, X } from 'lucide-react';
 
+import { useNavigate, Link } from "react-router-dom";
+
 const VitalLinkHomepage = () => {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -67,10 +70,12 @@ const VitalLinkHomepage = () => {
 
             {/* Auth Buttons */}
             <div className="hidden md:flex items-center space-x-4">
-              <button className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-200 font-medium">
-                Sign In
+              <button className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-200 font-medium"
+              onClick={() => navigate("/SignIn")}>
+                Sign In 
               </button>
-              <button className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transform hover:scale-105 transition-all duration-200 font-medium shadow-lg">
+              <button className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transform hover:scale-105 transition-all duration-200 font-medium shadow-lg"
+              onClick={() => navigate("/SignUp")}>
                 Sign Up
               </button>
             </div>
@@ -99,7 +104,9 @@ const VitalLinkHomepage = () => {
                 Contact Us
               </a>
               <div className="flex flex-col space-y-2 pt-4 border-t">
-                <button className="w-full px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium">
+                <button className="w-full px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
+                onClick={() => navigate("/SignIn")}
+                >
                   Sign In
                 </button>
                 <button className="w-full px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium">
@@ -112,7 +119,7 @@ const VitalLinkHomepage = () => {
       </nav>
 
       {/* Hero Section */}
-      <section id="home" className="pt-16 bg-gradient-to-br from-white via-red-50 to-white w-full  w-screen h-screen bg-gray-900 text-white flex items-center justify-center" >
+      <section id="home" className="pt-16 bg-gradient-to-br w-screen h-screen from-white via-red-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
@@ -127,14 +134,17 @@ const VitalLinkHomepage = () => {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                <button className="px-8 py-4 bg-black text-white rounded-lg hover:bg-gray-800 transform hover:scale-105 transition-all duration-200 font-semibold shadow-lg flex items-center justify-center space-x-2">
+                <button className="px-8 py-4 bg-black text-white rounded-lg hover:bg-gray-800 transform hover:scale-105 transition-all duration-200 font-semibold shadow-lg flex items-center justify-center space-x-2"
+                onClick={()=>navigate("/SignUp")}>
                   <span>Become a Donor</span>
                   <ChevronRight className="w-5 h-5" />
                 </button>
-                <button className="px-8 py-4 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-200 font-semibold">
+                <button className="px-8 py-4 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-200 font-semibold"
+                onClick={() => navigate("/SignIn")}>
                   Sign In
                 </button>
-                <button className="px-8 py-4 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-200 font-semibold transform hover:scale-105">
+                <button className="px-8 py-4 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-200 font-semibold transform hover:scale-105"
+                onClick={() => navigate("/HospitalRegistration")}>
                   Register as Hospital
                 </button>
               </div>
