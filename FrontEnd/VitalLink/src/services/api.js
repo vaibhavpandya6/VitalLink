@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5173';
+const API_URL = 'http://localhost:5000';
 
 // Create axios instance
 const apiClient = axios.create({
@@ -31,7 +31,7 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      window.location.href = '/SignIn';
     }
     return Promise.reject(error);
   }
@@ -56,7 +56,7 @@ export const authAPI = {
   // Login user
   login: async (email, password) => {
     try {
-      const response = await apiClient.post('/auth/login', { email, password });
+      const response = await apiClient.post('/auth/SignIn', { email, password });
       if (response.data.token) {
         localStorage.setItem('authToken', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));

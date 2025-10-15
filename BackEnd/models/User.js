@@ -99,26 +99,73 @@ const userSchema = new mongoose.Schema({
 });
 
 // Hash password before saving
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) {
-    return next();
-  }
+// userSchema.pre('save', async function(next) {
+//   if (!this.isModified('password')) {
+//     return next();
+//   }
 
+//   try {
+//     const salt = await bcrypt.genSalt(10);
+//     this.password = await bcrypt.hash(this.password, salt);
+//     next();
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+
+// // Method to compare passwords
+// userSchema.methods.matchPassword = async function(enteredPassword) {
+//   return await bcrypt.compare(enteredPassword, this.password);
+// };
+
+// // Method to get user without password
+// userSchema.methods.toJSON = function() {
+//   const obj = this.toObject();
+//   delete obj.password;
+//   return obj;
+// };
+
+userSchema.pre('save', async function(next) {
   try {
+    // If password is not modified, skip hashing
+    if (!this.isModified('password')) {
+      return next();
+    }
+
+    console.log('Hashing password for user:', this.email);
+
+    // Generate salt and hash password
     const salt = await bcrypt.genSalt(10);
+    console.log('Salt generated');
+
     this.password = await bcrypt.hash(this.password, salt);
+    console.log('Password hashed successfully');
+
     next();
   } catch (error) {
+    console.error('Error hashing password:', error);
     next(error);
   }
 });
 
-// Method to compare passwords
+// Method to compare passwords - IMPORTANT FIX
 userSchema.methods.matchPassword = async function(enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+  try {
+    console.log('Comparing passwords...');
+    console.log('Entered password:', enteredPassword);
+    console.log('Stored hash:', this.password.substring(0, 20) + '...');
+
+    const isMatch = await bcrypt.compare(enteredPassword, this.password);
+    console.log('Comparison result:', isMatch);
+
+    return isMatch;
+  } catch (error) {
+    console.error('Password comparison error:', error);
+    throw error;
+  }
 };
 
-// Method to get user without password
+// Method to return user without password
 userSchema.methods.toJSON = function() {
   const obj = this.toObject();
   delete obj.password;

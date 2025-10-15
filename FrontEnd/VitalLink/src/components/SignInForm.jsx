@@ -1,23 +1,25 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Phone, Lock, CheckCircle } from 'lucide-react';
 import { useNavigate, Link } from "react-router-dom";
-
+import { authAPI } from '../services/api';
+// emailOrPhone to email
 const SignInForm = ({ onBack, onSignInSuccess }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    emailOrPhone: '',
+    email: '',
     password: ''
   });
 
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
+   const [loading, setLoading] = useState(false);
 
   const validateField = (name, value) => {
     const newErrors = { ...errors };
 
     switch (name) {
-      case 'emailOrPhone':
+      case 'email':
         // Check if it's an email or phone number
         const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
         const isPhone = /^\d{10}$/.test(value);
@@ -54,34 +56,75 @@ const SignInForm = ({ onBack, onSignInSuccess }) => {
     validateField(name, value);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
     
-    // Validate all fields
-    validateField('emailOrPhone', formData.emailOrPhone);
-    validateField('password', formData.password);
+  //   // Validate all fields
+  //   validateField('email', formData.email);
+  //   validateField('password', formData.password);
 
-    // Check if there are any errors
-    const hasErrors = Object.keys(errors).length > 0 || !formData.emailOrPhone || !formData.password;
+  //   // Check if there are any errors
+  //   const hasErrors = Object.keys(errors).length > 0 || !formData.email || !formData.password;
     
-    if (!hasErrors) {
-      // Simulate sign-in success
-      setIsSignedIn(true);
+  //   if (!hasErrors) {
+  //     // Simulate sign-in success
+  //     setIsSignedIn(true);
       
-      // Call success callback after a short delay to show success message
-      setTimeout(() => {
-        if (onSignInSuccess) {
-          onSignInSuccess();
-        }
-      }, 2000);
+  //     // Call success callback after a short delay to show success message
+  //     setTimeout(() => {
+  //       if (onSignInSuccess) {
+  //         onSignInSuccess();
+  //       }
+  //     }, 2000);
+  //   }
+  // };
+  // 
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  // Basic validation
+  validateField('email', formData.email);
+  validateField('password', formData.password);
+
+  const hasErrors =
+    Object.keys(errors).length > 0 ||
+    !formData.email ||
+    !formData.password;
+
+  if (hasErrors) return;
+
+  setErrors('');
+  setLoading(true);
+
+  try {
+    const response = await authAPI.login(formData.email, formData.password);
+
+    if (response.success) {
+      alert('Login successful!');
+      localStorage.setItem("token", response.token);
+      localStorage.setItem("user", JSON.stringify(response.user));
+
+      navigate('/dashboard');
+    } else {
+      alert(response.message || 'Login failed.');
     }
-  };
+  } catch (err) {
+    const backendMessage =
+      err.response?.data?.message || 'Login failed. Please try again.';
+    setErrors(backendMessage);
+    alert(backendMessage);
+    console.error('Login error:', err.response?.data || err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const getInputIcon = () => {
-    if (!formData.emailOrPhone) return <Mail className="w-5 h-5 text-gray-400" />;
+    if (!formData.email) return <Mail className="w-5 h-5 text-gray-400" />;
     
-    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.emailOrPhone);
-    const isPhone = /^\d{10}$/.test(formData.emailOrPhone);
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
+    const isPhone = /^\d{10}$/.test(formData.email);
     
     if (isEmail) return <Mail className="w-5 h-5 text-red-600" />;
     if (isPhone) return <Phone className="w-5 h-5 text-red-600" />;
@@ -160,17 +203,17 @@ const SignInForm = ({ onBack, onSignInSuccess }) => {
                 </div>
                 <input
                   type="text"
-                  name="emailOrPhone"
-                  value={formData.emailOrPhone}
+                  name="email"
+                  value={formData.email}
                   onChange={handleInputChange}
                   className={`w-full pl-12 pr-4 py-3  text-gray-900 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all ${
-                    errors.emailOrPhone ? 'border-red-500' : 'border-gray-300'
+                    errors.email ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Enter email or 10-digit phone number"
                 />
               </div>
-              {errors.emailOrPhone && (
-                <p className="text-red-500 text-sm mt-1">{errors.emailOrPhone}</p>
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
               )}
             </div>
 

@@ -29,20 +29,21 @@ const DonorDashboard = ({ userData, onSignOut }) => {
     name: 'Rajesh Kumar',
     email: 'rajesh.kumar@example.com',
     bloodGroup: 'O+',
-    phone: '+91 9876543210',
-    location: 'Indore, Madhya Pradesh',
-    lastDonation: '2024-08-15',
+    contactNo: '+91 9876543210',
+    city: 'Indore, Madhya Pradesh',
+   // lastDonation: '2024-08-15',
     nextEligible: '2024-10-15',
     totalDonations: 12,
     livesImpacted: 36,
-    badges: ['Life Saver', 'Hero', 'Regular Donor'],
+    //badges: ['Life Saver', 'Hero', 'Regular Donor'],
     memberSince: 'March 2024',
     profilePhoto: null
   };
+  console.log("User Data from props:", user);
 
   const activeEmergency = {
     title: 'URGENT: Multiple Vehicle Accident',
-    location: 'Vijay Nagar, Indore',
+    city: 'Vijay Nagar, Indore',
     bloodNeeded: ['O+', 'O-', 'A+', 'B+'],
     criticality: 'CRITICAL',
     patientsAffected: 8,
@@ -90,27 +91,36 @@ const DonorDashboard = ({ userData, onSignOut }) => {
     }
   };
 
-  const calculateDaysUntilEligible = () => {
-    const today = new Date();
-    const eligible = new Date(user.nextEligible);
-    const diffTime = eligible - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays > 0 ? diffDays : 0;
-  };
+  // const calculateDaysUntilEligible = () => {
+  //   const today = new Date();
+  //   const eligible = new Date(user.nextEligible);
+  //   const diffTime = eligible - today;
+  //   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  //   return diffDays > 0 ? diffDays : 0;
+  // };
 
-  const isEligibleNow = calculateDaysUntilEligible() === 0;
+  // const isEligibleNow = calculateDaysUntilEligible() === 0;
 
   const scrollToSection = (ref) => {
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  // const getInitials = (name) => {
+  //   const names = name.split(' ');
+  //   if (names.length >= 2) {
+  //     return names[0][0] + names[names.length - 1][0];
+  //   }
+  //   return name[0];
+  // };
   const getInitials = (name) => {
-    const names = name.split(' ');
-    if (names.length >= 2) {
-      return names[0][0] + names[names.length - 1][0];
-    }
-    return name[0];
-  };
+  if (!name || typeof name !== 'string') return '?'; // fallback
+  const names = name.trim().split(' ');
+  if (names.length >= 2) {
+    return names[0][0] + names[names.length - 1][0];
+  }
+  return names[0][0];
+};
+
 
   const handleSignOut = () => {
     setShowSignOutConfirm(false);
@@ -255,15 +265,15 @@ const DonorDashboard = ({ userData, onSignOut }) => {
                     {user.profilePhoto ? (
                       <img
                         src={user.profilePhoto}
-                        alt={user.name}
+                        alt={user.firstName}
                         className="w-full h-full rounded-full object-cover"
                       />
                     ) : (
-                      <span className="text-white text-sm font-bold">{getInitials(user.name)}</span>
+                      <span className="text-white text-sm font-bold">{getInitials(user.firstName)}</span>
                     )}
                   </div>
                   <div className="text-left hidden md:block">
-                    <p className="text-sm font-semibold text-white">{user.name}</p>
+                    <p className="text-sm font-semibold text-white">{user.firstName} {user.lastName}</p>
                     <p className="text-xs text-gray-500">{user.bloodGroup}</p>
                   </div>
                 </button>
@@ -285,15 +295,16 @@ const DonorDashboard = ({ userData, onSignOut }) => {
                           {user.profilePhoto ? (
                             <img
                               src={user.profilePhoto}
-                              alt={user.name}
+                              alt={user.firstName}
                               className="w-full h-full rounded-full object-cover"
                             />
                           ) : (
-                            <span className="text-white text-lg font-bold">{getInitials(user.name)}</span>
+                            <span className="text-white text-lg font-bold">{getInitials(user.firstName)} {getInitials(user.lastName)}</span>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-gray-800 truncate">{user.name}</h3>
+                          <h3 className="font-semibold text-white
+                           truncate">{user.firstName} {user.lastName}</h3>
                           <p className="text-xs text-gray-500">View Profile</p>
                         </div>
                       </div>
@@ -325,7 +336,7 @@ const DonorDashboard = ({ userData, onSignOut }) => {
                 <div className="flex items-center space-x-4 mt-2 text-sm">
                   <span className="flex items-center space-x-1">
                     <MapPin className="w-4 h-4" />
-                    <span>{activeEmergency.location}</span>
+                    <span>{activeEmergency.city}</span>
                   </span>
                   <span>• {activeEmergency.patientsAffected} patients</span>
                 </div>
@@ -352,12 +363,12 @@ const DonorDashboard = ({ userData, onSignOut }) => {
       </div>
 
       {/* Slot Booking Section */}
-      <div className="bg-white border-b">
+      {/* <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
               <MapPin className="w-6 h-6 text-red-600" />
-              <span>Book Emergency Donation Slot - {activeEmergency.location}</span>
+              <span>Book Emergency Donation Slot - {activeEmergency.city}</span>
             </h2>
 
             <div className="space-y-4">
@@ -421,12 +432,12 @@ const DonorDashboard = ({ userData, onSignOut }) => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
           <div
             onClick={() => scrollToSection(donationHistoryRef)}
             className="bg-white p-6 rounded-lg shadow-sm border cursor-pointer hover:shadow-md transition-shadow"
@@ -452,7 +463,7 @@ const DonorDashboard = ({ userData, onSignOut }) => {
             <h3 className="text-3xl font-bold text-gray-800">{user.livesImpacted}</h3>
             <p className="text-sm text-gray-600">Lives Impacted</p>
           </div>
-
+ 
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-blue-100 rounded-lg">
@@ -476,11 +487,11 @@ const DonorDashboard = ({ userData, onSignOut }) => {
             <h3 className="text-3xl font-bold text-gray-800">{user.badges.length}</h3>
             <p className="text-sm text-gray-600">Badges Earned</p>
           </div>
-        </div>
+        </div> */}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Donation History */}
-          <div className="lg:col-span-2">
+          {/* <div className="lg:col-span-2">
             <div ref={donationHistoryRef} className="bg-white rounded-lg shadow-sm border p-6 mb-6">
               <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
                 <Clock className="w-6 h-6 text-red-600" />
@@ -503,11 +514,11 @@ const DonorDashboard = ({ userData, onSignOut }) => {
                 ))}
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Badges and Impact */}
           <div className="space-y-6">
-            <div ref={badgesRef} className="bg-white rounded-lg shadow-sm border p-6">
+            {/* <div ref={badgesRef} className="bg-white rounded-lg shadow-sm border p-6">
               <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
                 <Award className="w-6 h-6 text-red-600" />
                 <span>Earned Badges</span>
@@ -525,10 +536,10 @@ const DonorDashboard = ({ userData, onSignOut }) => {
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             {/* Impact Summary */}
-            <div ref={impactRef} className="bg-gradient-to-br from-blue-600 to-purple-700 text-white rounded-lg shadow-sm p-6">
+            {/* <div ref={impactRef} className="bg-gradient-to-br from-blue-600 to-purple-700 text-white rounded-lg shadow-sm p-6">
               <h2 className="text-xl font-bold mb-4">Your Impact</h2>
               <div className="space-y-4">
                 <div>
@@ -540,10 +551,11 @@ const DonorDashboard = ({ userData, onSignOut }) => {
                   Each donation can save up to 3 lives. Your contributions have made a significant impact in emergency situations.
                 </p>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
-      </div>
+      </div>   
+      
 
       {/* Profile Page Modal */}
       {showProfilePage && (
@@ -559,13 +571,13 @@ const DonorDashboard = ({ userData, onSignOut }) => {
               <div className="flex items-center space-x-4 mb-6 pb-6 border-b">
                 <div className="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0">
                   {user.profilePhoto ? (
-                    <img src={user.profilePhoto} alt={user.name} className="w-full h-full rounded-full object-cover" />
+                    <img src={user.profilePhoto} alt={user.firstName} className="w-full h-full rounded-full object-cover" />
                   ) : (
-                    <span className="text-white text-2xl font-bold">{getInitials(user.name)}</span>
+                    <span className="text-white text-2xl font-bold">{getInitials(user.firstName)}</span>
                   )}
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-800">{user.name}</h2>
+                  <h2 className="text-2xl font-bold text-gray-800">{user.firstName}</h2>
                   <p className="text-gray-600">
                     Blood Group: <span className="font-semibold text-red-600">{user.bloodGroup}</span>
                   </p>
@@ -581,12 +593,12 @@ const DonorDashboard = ({ userData, onSignOut }) => {
                     <span className="font-semibold text-black">{user.email}</span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                    <span className="text-gray-600">Phone</span>
-                    <span className="font-semibold text-black">{user.phone}</span>
+                    <span className="text-gray-600">contactNo</span>
+                    <span className="font-semibold text-black">{user.contactNo}</span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                    <span className="text-gray-600">Location</span>
-                    <span className="font-semibold text-black text-right">{user.location}</span>
+                    <span className="text-gray-600">city</span>
+                    <span className="font-semibold text-black text-right">{user.city}</span>
                   </div>
                 </div>
               </div>
@@ -596,7 +608,7 @@ const DonorDashboard = ({ userData, onSignOut }) => {
       )}
 
       {/* Change Password Modal */}
-      {showChangePassword && (
+      {/* {showChangePassword && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-2xl max-w-md w-full">
             <div className="flex items-center justify-between p-6 border-b">
@@ -693,7 +705,7 @@ const DonorDashboard = ({ userData, onSignOut }) => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Privacy Policy Modal */}
       {showPrivacyPolicy && (
@@ -718,8 +730,8 @@ const DonorDashboard = ({ userData, onSignOut }) => {
                 <section>
                   <h4 className="font-semibold text-gray-800 mb-2">1. Information We Collect</h4>
                   <p className="text-sm">
-                    VitalLink collects personal information including your name, email address, phone number, blood group,
-                    location, and donation history to facilitate emergency blood donation services. We collect this
+                    VitalLink collects personal information including your name, email address, contactNo number, blood group,
+                    city, and donation history to facilitate emergency blood donation services. We collect this
                     information with your explicit consent during registration.
                   </p>
                 </section>
@@ -868,6 +880,8 @@ const DonorDashboard = ({ userData, onSignOut }) => {
       )}
     </div>
   );
+
+
 };
 
 export default DonorDashboard;

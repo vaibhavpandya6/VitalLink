@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Heart, Eye, EyeOff, Upload, CheckCircle, User, Mail, Phone, MapPin, Calendar, Droplets, Lock, FileText, Camera } from 'lucide-react';
 import { useNavigate, Link } from "react-router-dom";
+import { authAPI } from '../services/api';
 const DonorRegistrationForm = ({ onBack, onSignIn }) => {
   const navigate = useNavigate();
+  const [error, setError] = useState('');
+   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     middleName: '',
@@ -13,7 +16,7 @@ const DonorRegistrationForm = ({ onBack, onSignIn }) => {
     bloodGroup: '',
     email: '',
     contactNo: '',
-    aadhaarNumber: '',
+    aadharNumber: '',
     state: '',
     city: '',
     pincode: '',
@@ -93,7 +96,7 @@ const DonorRegistrationForm = ({ onBack, onSignIn }) => {
         }
         break;
 
-      case 'aadhaarNumber':
+      case 'aadharNumber':
         if (!/^\d{12}$/.test(value) && value !== '') {
           newErrors[name] = 'Aadhaar number must be 12 digits';
         } else {
@@ -155,7 +158,7 @@ const DonorRegistrationForm = ({ onBack, onSignIn }) => {
   const validateStep = (step) => {
     const stepFields = {
       1: ['firstName', 'lastName', 'age', 'gender', 'dateOfBirth', 'bloodGroup'],
-      2: ['email', 'contactNo', 'aadhaarNumber'],
+      2: ['email', 'contactNo', 'aadharNumber'],
       3: ['state', 'city', 'pincode', 'address'],
       4: ['majorDisease', 'password', 'confirmPassword', 'photograph']
     };
@@ -185,9 +188,30 @@ const DonorRegistrationForm = ({ onBack, onSignIn }) => {
     setCurrentStep(prev => prev - 1);
   };
 
-  const handleSubmit = () => {
-    if (validateStep(4)) {
-      setIsSubmitted(true);
+  // const handleSubmit = () => {
+  //   if (validateStep(4)) {
+  //     setIsSubmitted(true);
+  //   }
+  // };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+     if (validateStep(4)) {
+       setIsSubmitted(true);
+   }
+    setErrors('');
+    setLoading(true);
+
+    try {
+      const response = await authAPI.register(formData);
+      if (response.success) {
+        alert('Registration successful! Redirecting to dashboard...');
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      setErrors(err.message || 'Registration failed. Please try again.');
+      console.error('Registration error:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -306,8 +330,8 @@ const DonorRegistrationForm = ({ onBack, onSignIn }) => {
                   }`}
                 >
                   <option value="">Select gender</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
                   <option value="other">Other</option>
                 </select>
                 {errors.gender && <p className="text-red-500 text-sm mt-1">{errors.gender}</p>}
@@ -403,15 +427,15 @@ const DonorRegistrationForm = ({ onBack, onSignIn }) => {
               </label>
               <input
                 type="text"
-                name="aadhaarNumber"
-                value={formData.aadhaarNumber}
+                name="aadharNumber"
+                value={formData.aadharNumber}
                 onChange={handleInputChange}
                 className={`w-full p-3  text-gray-900 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
-                  errors.aadhaarNumber ? 'border-red-500' : 'border-gray-300'
+                  errors.aadharNumber ? 'border-red-500' : 'border-gray-300'
                 }`}
                 placeholder="Enter 12-digit Aadhaar number"
               />
-              {errors.aadhaarNumber && <p className="text-red-500 text-sm mt-1">{errors.aadhaarNumber}</p>}
+              {errors.aadharNumber && <p className="text-red-500 text-sm mt-1">{errors.aadharNumber}</p>}
             </div>
           </div>
         );
