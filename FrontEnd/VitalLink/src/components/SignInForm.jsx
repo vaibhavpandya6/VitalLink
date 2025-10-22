@@ -79,12 +79,11 @@ const SignInForm = ({ onBack, onSignInSuccess }) => {
   //   }
   // };
   // 
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
   e.preventDefault();
 
-  // Basic validation
-  validateField('email', formData.email);
-  validateField('password', formData.password);
+  validateField("email", formData.email);
+  validateField("password", formData.password);
 
   const hasErrors =
     Object.keys(errors).length > 0 ||
@@ -93,31 +92,38 @@ const SignInForm = ({ onBack, onSignInSuccess }) => {
 
   if (hasErrors) return;
 
-  setErrors('');
+  setErrors("");
   setLoading(true);
 
   try {
     const response = await authAPI.login(formData.email, formData.password);
 
     if (response.success) {
-      alert('Login successful!');
+      alert("Login successful!");
+
+      // Store data
       localStorage.setItem("token", response.token);
       localStorage.setItem("user", JSON.stringify(response.user));
 
-      navigate('/dashboard');
+      // ✅ Force reactivity in MainRouter
+      window.dispatchEvent(new Event("storage"));
+
+      // ✅ Navigate safely after event dispatch
+      setTimeout(() => navigate("/dashboard"), 200);
     } else {
-      alert(response.message || 'Login failed.');
+      alert(response.message || "Login failed.");
     }
   } catch (err) {
     const backendMessage =
-      err.response?.data?.message || 'Login failed. Please try again.';
+      err.response?.data?.message || "Login failed. Please try again.";
     setErrors(backendMessage);
     alert(backendMessage);
-    console.error('Login error:', err.response?.data || err.message);
+    console.error("Login error:", err.response?.data || err.message);
   } finally {
     setLoading(false);
   }
 };
+
 
 
   const getInputIcon = () => {

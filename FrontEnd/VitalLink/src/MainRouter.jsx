@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import App from "./App.jsx";
-import { BrowserRouter, Routes, Route,Navigate } from "react-router-dom";
 import SignInForm from './components/SignInForm.jsx';
 import DonorRegistrationForm from './components/DonorRegistrationForm.jsx';
 import HospitalRegistrationForm from './components/HospitalRegistrationForm.jsx';
@@ -9,6 +9,13 @@ import DonorDashboard from './components/DonorDashboard.jsx';
 function MainRouter() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || '{}'));
+  useEffect(() => {
+  console.log("isAuthenticated:", isAuthenticated);
+  console.log("user:", user);
+}, [isAuthenticated, user]);
+
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -19,6 +26,15 @@ function MainRouter() {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
+  const handleSignOut = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setIsAuthenticated(false);
+    setUser({});
+    navigate('/SignIn');
+  };
+
+
   return (
     <Routes>
       <Route path="/" element={<App />} />
@@ -26,16 +42,12 @@ function MainRouter() {
       <Route
         path="/dashboard"
         element={
-    localStorage.getItem('token') ? (
-      <DonorDashboard
-        userData={JSON.parse(localStorage.getItem('user') || '{}')}
-        onSignOut={() => {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          window.location.href = '/SignIn';
-        }}
-      />
-    )  : (
+          isAuthenticated ? (
+            <DonorDashboard
+              userData={user}
+              onSignOut={handleSignOut}
+            />
+          ) : (
             <Navigate to="/SignIn" />
           )
         }
@@ -45,4 +57,5 @@ function MainRouter() {
     </Routes>
   );
 }
+
 export default MainRouter;

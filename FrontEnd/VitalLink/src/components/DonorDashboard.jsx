@@ -363,7 +363,7 @@ const DonorDashboard = ({ userData, onSignOut }) => {
       </div>
 
       {/* Slot Booking Section */}
-      {/* <div className="bg-white border-b">
+      <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
@@ -381,7 +381,7 @@ const DonorDashboard = ({ userData, onSignOut }) => {
                     setSelectedSlot('');
                   }}
                   className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 text-black"
-                  disabled={!isEligibleNow}
+                  // disabled={!isEligibleNow}
                 >
                   <option value="">Choose a hospital</option>
                   {nearbyHospitals.map((hospital) => (
@@ -424,15 +424,15 @@ const DonorDashboard = ({ userData, onSignOut }) => {
                 </button>
               )}
 
-              {!isEligibleNow && (
+              {/* {!isEligibleNow && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
                   You can book a slot {calculateDaysUntilEligible()} days from now. Check back on {user.nextEligible}!
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         </div>
-      </div> */}
+      </div>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-6">
