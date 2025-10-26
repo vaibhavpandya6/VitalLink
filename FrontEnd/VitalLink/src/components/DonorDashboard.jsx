@@ -137,30 +137,43 @@ const DonorDashboard = ({ userData, onSignOut }) => {
     setShowSettings(false);
   };
 // 🆘 Emergency alert state
-const [activeEmergency, setActiveEmergency] = useState(null);
+// 🆘 Emergency alert state
+  const [activeEmergency, setActiveEmergency] = useState(null);
 
-useEffect(() => {
-  const socket = io("http://localhost:5000", {
-    transports: ["websocket", "polling"],
-    reconnectionAttempts: 5,
-  });
+  useEffect(() => {
+    const socket = io("http://localhost:5000", {
+      transports: ["websocket", "polling"],
+      reconnectionAttempts: 5,
+    });
 
-  socket.on("connect", () => {
-    console.log("✅ Connected to WebSocket:", socket.id);
-  });
+    socket.on("connect", () => {
+      console.log("✅ Connected to WebSocket:", socket.id);
+    });
 
-  socket.onAny((event, data) => {
-    console.log("📡 Received event:", event, data);
-  });
+    socket.onAny((event, data) => {
+      console.log("📡 Received event:", event, data);
+    });
 
-  socket.on("connect_error", (err) => {
-    console.error("❌ Connection error:", err.message);
-  });
+    socket.on("connect_error", (err) => {
+      console.error("❌ Connection error:", err.message);
+    });
 
-  return () => socket.disconnect();
-}, []);
+    // ✅ --- THIS IS THE MISSING PIECE --- ✅
+    // Listen for the specific event from the server
+    socket.on("accident_alert", (alertData) => {
+      console.log("🚨🚨 NEW ALERT RECEIVED:", alertData);
+      // Set the state, which will make your emergency banner appear
+      setActiveEmergency(alertData); 
+    });
+    // ✅ ------------------------------------ ✅
 
-
+    // Cleanup listeners on component unmount
+    return () => {
+      console.log("🔌 Disconnecting socket...");
+      socket.off("accident_alert"); // <-- Make sure to clean up this listener
+      socket.disconnect();
+    };
+  }, []); // Empty dependency array ensures this runs only once
   return (
     <div className="min-h-screen bg-gray-50 w-screen" onClick={closeDropdowns}>
       {/* Top Navigation */}

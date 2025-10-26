@@ -40,7 +40,7 @@ const io = new Server(server, {
   },
   transports: ["websocket", "polling"], // Allow fallback
 });
-
+global.io = io;
 // Socket.IO connection handler
 io.on("connection", (socket) => {
   console.log("🟢 Client connected:", socket.id);
