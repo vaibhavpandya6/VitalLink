@@ -1,5 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { AlertTriangle, Calendar, Award, User, Bell, LogOut, Clock, MapPin, Droplet, Heart, Shield, TrendingUp, ChevronRight, X, Lock, Eye, EyeOff, CheckCircle, Settings, FileText } from 'lucide-react';
+import { useEffect } from 'react';
+import { io } from 'socket.io-client';
+
 
 const DonorDashboard = ({ userData, onSignOut }) => {
   const [showProfile, setShowProfile] = useState(false);
@@ -41,14 +44,14 @@ const DonorDashboard = ({ userData, onSignOut }) => {
   };
   console.log("User Data from props:", user);
 
-  const activeEmergency = {
-    title: 'URGENT: Multiple Vehicle Accident',
-    city: 'Vijay Nagar, Indore',
-    bloodNeeded: ['O+', 'O-', 'A+', 'B+'],
-    criticality: 'CRITICAL',
-    patientsAffected: 8,
-    time: '25 mins ago'
-  };
+  // const activeEmergency = {
+  //   title: 'URGENT: Multiple Vehicle Accident',
+  //   city: 'Vijay Nagar, Indore',
+  //   bloodNeeded: ['O+', 'O-', 'A+', 'B+'],
+  //   criticality: 'CRITICAL',
+  //   patientsAffected: 8,
+  //   time: '25 mins ago'
+  // };
 
   const nearbyHospitals = [
     { id: 1, name: 'Apollo Hospital', address: 'Vijay Nagar', slots: ['10:00 AM', '11:00 AM', '2:00 PM', '4:00 PM'] },
@@ -133,6 +136,30 @@ const DonorDashboard = ({ userData, onSignOut }) => {
     setShowProfile(false);
     setShowSettings(false);
   };
+// 🆘 Emergency alert state
+const [activeEmergency, setActiveEmergency] = useState(null);
+
+useEffect(() => {
+  const socket = io("http://localhost:5000", {
+    transports: ["websocket", "polling"],
+    reconnectionAttempts: 5,
+  });
+
+  socket.on("connect", () => {
+    console.log("✅ Connected to WebSocket:", socket.id);
+  });
+
+  socket.onAny((event, data) => {
+    console.log("📡 Received event:", event, data);
+  });
+
+  socket.on("connect_error", (err) => {
+    console.error("❌ Connection error:", err.message);
+  });
+
+  return () => socket.disconnect();
+}, []);
+
 
   return (
     <div className="min-h-screen bg-gray-50 w-screen" onClick={closeDropdowns}>
@@ -318,7 +345,7 @@ const DonorDashboard = ({ userData, onSignOut }) => {
       </nav>
 
       {/* Emergency Alert Banner */}
-      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white">
+      {/* <div className="bg-gradient-to-r from-red-600 to-red-700 text-white">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between animate-pulse">
             <div className="flex items-center space-x-4">
@@ -360,7 +387,56 @@ const DonorDashboard = ({ userData, onSignOut }) => {
             </button>
           </div>
         </div>
+      </div> */}
+      {/* 🧠 Live Emergency Alert Banner */}
+{activeEmergency && (
+  <div className="bg-gradient-to-r from-red-600 to-red-700 text-white">
+    <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className="flex items-center justify-between animate-pulse">
+        <div className="flex items-center space-x-4">
+          <div className="bg-white/20 p-3 rounded-lg">
+            <AlertTriangle className="w-8 h-8" />
+          </div>
+          <div>
+            <div className="flex items-center space-x-2 mb-1">
+              <span className="bg-yellow-400 text-red-900 text-xs font-bold px-2 py-1 rounded">
+                LIVE EMERGENCY
+              </span>
+              <span className="text-sm">{activeEmergency.time}</span>
+            </div>
+            <h2 className="text-xl font-bold">{activeEmergency.title}</h2>
+            <div className="flex items-center space-x-4 mt-2 text-sm">
+              <span className="flex items-center space-x-1">
+                <MapPin className="w-4 h-4" />
+                <span>{activeEmergency.city}</span>
+              </span>
+              <span>• {activeEmergency.patientsAffected} patients</span>
+            </div>
+            <div className="flex items-center space-x-2 mt-2">
+              <span className="text-sm">Blood Needed:</span>
+              {activeEmergency.bloodNeeded.map((bg) => (
+                <span
+                  key={bg}
+                  className={`px-2 py-1 rounded text-xs font-semibold ${
+                    userData?.bloodGroup === bg
+                      ? "bg-yellow-400 text-red-900"
+                      : "bg-white/20"
+                  }`}
+                >
+                  {bg}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+        <button className="bg-white text-red-600 px-6 py-3 rounded-lg font-bold hover:bg-red-50 transition-colors hidden md:block">
+          RESPOND NOW
+        </button>
       </div>
+    </div>
+  </div>
+)}
+
 
       {/* Slot Booking Section */}
       <div className="bg-white border-b">
@@ -368,7 +444,7 @@ const DonorDashboard = ({ userData, onSignOut }) => {
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
               <MapPin className="w-6 h-6 text-red-600" />
-              <span>Book Emergency Donation Slot - {activeEmergency.city}</span>
+             {/* <span>Book Emergency Donation Slot - {activeEmergency.city}</span> */}
             </h2>
 
             <div className="space-y-4">
