@@ -100,6 +100,6 @@ app.use((err, req, res, next) => {
 
 // --- Start Server ---
 // Use 'server.listen' instead of 'app.listen' to run the server with Socket.IO
-server.listen(PORT, () => {
+server.listen(PORT,"0.0.0.0", () => {
   console.log(`✓ Server running on port ${PORT}`);
 });
