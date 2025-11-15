@@ -5,9 +5,15 @@ import SignInForm from './components/SignInForm.jsx';
 import DonorRegistrationForm from './components/DonorRegistrationForm.jsx';
 import HospitalRegistrationForm from './components/HospitalRegistrationForm.jsx';
 import DonorDashboard from './components/DonorDashboard.jsx';
+import HospitalSignIn from "./components/HospitalSignIn.jsx";
+import HospitalDashboard from "./components/HospitalDashboard.jsx";
 
 function MainRouter() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
+  const [hospitalToken, setHospitalToken] = useState(localStorage.getItem("hospitalToken"));
+  const [hospitalData, setHospitalData] = useState(
+    JSON.parse(localStorage.getItem("hospitalData") || "{}")
+  );
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || '{}'));
   useEffect(() => {
   console.log("isAuthenticated:", isAuthenticated);
@@ -20,7 +26,9 @@ function MainRouter() {
   useEffect(() => {
     const handleStorageChange = () => {
       setIsAuthenticated(!!localStorage.getItem('token'));
+      setHospitalToken(localStorage.getItem("hospitalToken"));
       setUser(JSON.parse(localStorage.getItem('user') || '{}'));
+      setHospitalData(JSON.parse(localStorage.getItem("hospitalData") || "{}"));
     };
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
@@ -32,6 +40,14 @@ function MainRouter() {
     setIsAuthenticated(false);
     setUser({});
     navigate('/SignIn');
+  };
+ 
+  const handleHospitalSignOut = () => {
+    localStorage.removeItem("hospitalToken");
+    localStorage.removeItem("hospitalData");
+
+    setHospitalToken(null);
+    navigate("/SignAsHospital");
   };
 
 
@@ -54,6 +70,19 @@ function MainRouter() {
       />
       <Route path="/SignUp" element={<DonorRegistrationForm />} />
       <Route path="/HospitalRegistration" element={<HospitalRegistrationForm />} />
+
+       <Route path="/SignAsHospital" element={<HospitalSignIn />} />
+       <Route
+        path="/hospital/dashboard"
+        element={
+          hospitalToken ? (
+            <HospitalDashboard hospital={hospitalData} onSignOut={handleHospitalSignOut} />
+          ) : (
+            <Navigate to="/SignAsHospital" />
+          )
+        }
+      />
+
     </Routes>
   );
 }

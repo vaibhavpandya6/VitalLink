@@ -28,16 +28,19 @@ const HospitalDashboard = () => {
 
   const bookedSlotsRef = useRef(null);
 
-  const hospital = {
-    name: 'Apollo Hospital',
-    email: 'emergency@apolloindore.com',
-    phone: '+91 731-4567890',
-    location: 'Vijay Nagar, Indore',
-    address: 'Scheme 74C, Vijay Nagar, Indore, Madhya Pradesh 452010',
-    licenseNo: 'MH-IND-2024-1234',
-    memberSince: 'January 2023',
-    emergencyContact: '+91 731-4567899'
-  };
+  // const hospital = {
+  //   hospitalName: 'Apollo Hospital',
+  //   email: 'emergency@apolloindore.com',
+  //   phone: '+91 731-4567890',
+  //   location: 'Vijay Nagar, Indore',
+  //   address: 'Scheme 74C, Vijay Nagar, Indore, Madhya Pradesh 452010',
+  //   licenseNo: 'MH-IND-2024-1234',
+  //   memberSince: 'January 2023',
+  //   emergencyContact: '+91 731-4567899'
+  // };
+  const hospital = JSON.parse(localStorage.getItem("hospitalData") || "{}");
+  console.log("Hospital Data from props:", hospital)
+
 
   const todayBookedSlots = [
     { id: 1, donorName: 'Rajesh Kumar', bloodGroup: 'O+', phone: '+91 9876543210', time: '10:00 AM', status: 'Confirmed' },
@@ -109,16 +112,16 @@ const HospitalDashboard = () => {
     }
   };
 
-  const getInitials = (name) => {
-    const names = name.split(' ');
+  const getInitials = (hospitalName) => {
+    const names = hospitalName.split(' ');
     if (names.length >= 2) {
       return names[0][0] + names[names.length - 1][0];
     }
-    return name.substring(0, 2).toUpperCase();
+    return hospitalName.substring(0, 2).toUpperCase();
   };
 
   return (
-    <div className="min-h-screen bg-gray-50" onClick={closeDropdowns}>
+    <div className="min-h-screen bg-gray-50 w-screen" onClick={closeDropdowns}>
       <nav className="bg-white shadow-sm border-b sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -175,10 +178,10 @@ const HospitalDashboard = () => {
                   className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-bold">{getInitials(hospital.name)}</span>
+                    <span className="text-white text-sm font-bold">{getInitials(hospital.hospitalName)}</span>
                   </div>
                   <div className="text-left hidden md:block">
-                    <p className="text-sm font-semibold text-gray-800">{hospital.name}</p>
+                    <p className="text-sm font-semibold text-gray-800">{hospital.hospitalName}</p>
                     <p className="text-xs text-gray-500">{hospital.location}</p>
                   </div>
                 </button>
@@ -191,10 +194,10 @@ const HospitalDashboard = () => {
                     >
                       <div className="flex items-center space-x-3">
                         <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-white text-lg font-bold">{getInitials(hospital.name)}</span>
+                          <span className="text-white text-lg font-bold">{getInitials(hospital.hospitalName)}</span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-gray-800 truncate">{hospital.name}</h3>
+                          <h3 className="font-semibold text-gray-800 truncate">{hospital.hospitalName}</h3>
                           <p className="text-xs text-gray-500">View Profile</p>
                         </div>
                       </div>
@@ -310,10 +313,10 @@ const HospitalDashboard = () => {
             <div className="p-6">
               <div className="flex items-center space-x-4 mb-6 pb-6 border-b">
                 <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-2xl font-bold">{getInitials(hospital.name)}</span>
+                  <span className="text-white text-2xl font-bold">{getInitials(hospital.hospitalName)}</span>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-800">{hospital.name}</h2>
+                  <h2 className="text-2xl font-bold text-gray-800">{hospital.hospitalName}</h2>
                   <p className="text-gray-600">{hospital.location}</p>
                   <p className="text-sm text-gray-500">Member since {hospital.memberSince}</p>
                 </div>

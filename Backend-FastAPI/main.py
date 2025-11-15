@@ -1,6 +1,6 @@
 from fastapi import FastAPI, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-import requests, re, os
+import requests, re, os, json
 from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -21,35 +21,79 @@ NODE_API_URL = os.getenv("NODE_API_URL")
 
 scheduler = BackgroundScheduler()
 
+# ---------------------------------------------------------
+# 1️⃣ List of major cities (extend as needed)
+# ---------------------------------------------------------
+CITY_LIST = [
+    "Mumbai","Delhi","New Delhi","Bengaluru","Bangalore","Chennai","Kolkata","Hyderabad",
+    "Pune","Nagpur","Indore","Jaipur","Ahmedabad","Surat","Lucknow","Kanpur",
+    "Patna","Bhopal","Thane","Noida","Gurgaon","Guwahati","Kochi","Visakhapatnam",
+    "London","Paris","New York","Los Angeles","Chicago","Tokyo","Dubai","Sydney"
+]
+
+CITY_REGEX = re.compile(r"\b(" + "|".join(CITY_LIST) + r")\b", re.IGNORECASE)
+
+# ---------------------------------------------------------
+# 2️⃣ Injury Count Extraction
+# ---------------------------------------------------------
 def extract_injury_count(text: str) -> int:
-    """Extract or estimate number of injured people from text using regex and keywords."""
     if not text:
         return 0
 
     text = text.lower()
 
-    # Direct number + keyword match (e.g., "50 injured", "20 hurt")
     match = re.search(r"(\d+)\s*(injured|hurt|wounded|hospitalized|dead|killed)", text)
     if match:
         return int(match.group(1))
 
-    # Approximate terms
-    if "dozens" in text:
-        return 24
-    if "scores" in text:
-        return 40
-    if "hundreds" in text:
-        return 100
-    if "thousands" in text:
-        return 1000
-    if "multiple" in text or "several" in text or "many" in text:
-        return 10
-    if "critically injured" in text:
-        return 2  # treat small but serious incidents too
+    if "dozens" in text: return 24
+    if "scores" in text: return 40
+    if "hundreds" in text: return 100
+    if "thousands" in text: return 1000
+    if "multiple" in text or "several" in text or "many" in text: return 10
+    if "critically injured" in text: return 2
 
     return 0
 
+# ---------------------------------------------------------
+# 3️⃣ City Extraction from title + description
+# ---------------------------------------------------------
+def extract_city(title: str, description: str, source_name: str) -> str:
+    combined = f"{title} {description}"
 
+    # direct match in list
+    match = CITY_REGEX.search(combined)
+    if match:
+        return match.group(1)
+
+    # generic location pattern "in <city>"
+    pattern = re.search(r"in ([A-Za-z ]+)", combined)
+    if pattern:
+        city_candidate = pattern.group(1).strip()
+        if len(city_candidate) <= 20:
+            return city_candidate
+
+    # fallback: source name sometimes contains city
+    if source_name and len(source_name) <= 20:
+        return source_name
+
+    return "Unknown"
+
+# ---------------------------------------------------------
+# 4️⃣ Prevent Duplicate Alerts
+# ---------------------------------------------------------
+sent_alerts_cache = set()
+
+def is_duplicate(title: str) -> bool:
+    key = title.lower().strip()
+    if key in sent_alerts_cache:
+        return True
+    sent_alerts_cache.add(key)
+    return False
+
+# ---------------------------------------------------------
+# 5️⃣ Main News Processing
+# ---------------------------------------------------------
 def process_news():
     print("📰 Fetching latest accident news...")
     try:
@@ -73,14 +117,23 @@ def process_news():
         print(f"✅ {len(articles)} articles fetched.")
 
         for article in articles:
+            title = article.get("title", "")
             desc = article.get("description", "")
-            injury_count = extract_injury_count(article.get("description", ""))
-            print(f"📰 {article.get('title', '')} → found {injury_count} injuries")
-            if injury_count >= 10: 
-            
+            source_name = article.get("source", {}).get("name", "")
+
+            if is_duplicate(title):
+                print(f"⚠ Duplicate news skipped → {title}")
+                continue
+
+            injury_count = extract_injury_count(desc)
+            city = extract_city(title, desc, source_name)
+
+            print(f"📰 {title} → injuries: {injury_count}, city: {city}")
+
+            if injury_count >= 10:
                 alert = {
-                    "title": article.get("title", "Accident Alert"),
-                    "city": article.get("source", {}).get("name", "Unknown"),
+                    "title": title,
+                    "city": city,
                     "patientsAffected": injury_count,
                     "bloodNeeded": ["O+", "A+", "B+"],
                 }
@@ -97,17 +150,17 @@ def process_news():
     except Exception as err:
         print("❌ Error fetching news:", err)
 
-
+# ---------------------------------------------------------
+# 6️⃣ API Endpoints
+# ---------------------------------------------------------
 @app.get("/api/alerts/trigger")
 def trigger_alert(background_tasks: BackgroundTasks):
-    """Manual trigger to fetch & analyze news."""
     background_tasks.add_task(process_news)
     return {"success": True, "message": "Background task started."}
 
 
 @app.on_event("startup")
 def start_scheduler():
-    """Start the automatic scheduler when the app launches."""
     print("⏰ Starting automatic accident news checker (every 10 minutes)...")
     scheduler.add_job(process_news, "interval", minutes=10, id="news_job", replace_existing=True)
     scheduler.start()

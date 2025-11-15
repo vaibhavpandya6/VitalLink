@@ -140,8 +140,8 @@ const VitalLinkHomepage = () => {
                   <ChevronRight className="w-5 h-5" />
                 </button>
                 <button className="px-8 py-4 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-200 font-semibold"
-                onClick={() => navigate("/SignIn")}>
-                  Sign In
+                onClick={() => navigate("/SignAsHospital")}>
+                  Sign In As a Hospital
                 </button>
                 <button className="px-8 py-4 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-200 font-semibold transform hover:scale-105"
                 onClick={() => navigate("/HospitalRegistration")}>

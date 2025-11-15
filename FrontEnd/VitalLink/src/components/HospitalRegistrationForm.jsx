@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from "axios";
 import { Eye, EyeOff, Upload, CheckCircle, Building2, Mail, Phone, MapPin, Calendar, FileText, Camera, Shield, Clock, Users } from 'lucide-react';
 
 const HospitalRegistrationForm = () => {
@@ -47,6 +48,7 @@ const HospitalRegistrationForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [referenceId, setReferenceId] = useState('');
   const [showReview, setShowReview] = useState(false);
@@ -441,14 +443,44 @@ const HospitalRegistrationForm = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSubmit = () => {
-    if (validateStep(6)) {
-      const uniqueId = generateUniqueId();
-      setReferenceId(uniqueId);
-      setIsSubmitted(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+const handleSubmit = async () => {
+  if (!validateStep(6)) return;
+
+  try {
+    const uniqueId = generateUniqueId();
+    setReferenceId(uniqueId);
+    setIsSubmitting(true);
+
+    // ✅ Correct: use your actual formData state
+    const data = new FormData();
+    for (const key in formData) {
+      data.append(key, formData[key]);
     }
-  };
+
+    // Add referenceId
+    data.append("referenceId", uniqueId);
+
+    const response = await axios.post(
+      "http://localhost:5000/api/hospitals/register",
+      data,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+
+    if (response.data.success) {
+      setIsSubmitted(true);
+      alert(`✅ Registration Successful!\nReference ID: ${uniqueId}`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      alert(`❌ ${response.data.message}`);
+    }
+  } catch (error) {
+    console.error("Error submitting hospital registration:", error);
+    alert("Error submitting form. Please check your details or try again.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   const handleReview = () => {
     setShowReview(true);

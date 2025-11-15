@@ -12,6 +12,7 @@ const connectDB = require('./config/database');
 const authRoutes = require('./routes/authRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const { getAccidentNews } = require('./services/newsService');
+const hospitalRoutes = require("./routes/hospitalRoutes");
 
 // --- Initialization & Config ---
 dotenv.config();
@@ -77,6 +78,8 @@ app.get('/api/health', (req, res) => {
     message: 'Server is running',
   });
 });
+
+app.use("/api/hospitals", hospitalRoutes);
 
 // --- Error Handling (Must be after all routes) ---
 
